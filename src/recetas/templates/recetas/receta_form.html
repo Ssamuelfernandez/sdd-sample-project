@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block title %}Nueva receta · Blog de Cocina{% endblock %}
+{% block description %}Comparte tu receta con el resto del mundo.{% endblock %}
+
+{% block content %}
+<section class="receta">
+    <a class="receta__volver" href="{% url 'recetas:inicio' %}">← Volver</a>
+
+    <h1 class="receta__titulo">Nueva receta</h1>
+    <p class="receta__meta">Los campos marcados con * son obligatorios.</p>
+
+    {% if form.errors %}
+    <p class="formulario__aviso" role="alert">Revisa los campos marcados en rojo antes de publicar.</p>
+    {% endif %}
+
+    <form class="formulario" method="post" action="{% url 'recetas:nueva' %}">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+
+        {% for field in form %}
+        <div class="campo{% if field.errors %} campo--error{% endif %}">
+            <label class="campo__etiqueta" for="{{ field.id_for_label }}">
+                {{ field.label }}{% if field.field.required %} <span aria-hidden="true">*</span>{% endif %}
+            </label>
+            {{ field }}
+            {% if field.help_text %}
+            <p class="campo__ayuda" id="{{ field.auto_id }}_helptext">{{ field.help_text }}</p>
+            {% endif %}
+            {% for error in field.errors %}
+            <p class="campo__error" id="{{ field.auto_id }}_error">{{ error }}</p>
+            {% endfor %}
+        </div>
+        {% endfor %}
+
+        <button class="boton boton--grande" type="submit">Publicar</button>
+    </form>
+</section>
+{% endblock %}

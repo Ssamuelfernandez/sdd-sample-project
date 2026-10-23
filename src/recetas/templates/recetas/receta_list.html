@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block content %}
 {% if recetas %}
@@ -6,7 +7,10 @@
         {% for receta in recetas %}
         <li>
             <article class="tarjeta">
-                <h2 class="tarjeta__titulo"><a href="#">{{ receta.titulo }}</a></h2>
+                <h2 class="tarjeta__titulo"><a href="{% url 'recetas:detalle' receta.id %}">{{ receta.titulo }}</a></h2>
+                {% if receta.imagen %}
+                <img class="tarjeta__imagen" src="{% static receta.imagen %}" alt="{{ receta.titulo }}" width="640" height="480" loading="lazy">
+                {% endif %}
                 {% if receta.descripcion %}
                 <p class="tarjeta__descripcion">{{ receta.descripcion }}</p>
                 {% endif %}
@@ -22,7 +26,7 @@
     <section class="vacio">
         <p class="vacio__titulo">Todavía no hay recetas</p>
         <p class="vacio__texto">¿Te animas a publicar la primera?</p>
-        <a class="boton" href="#">Nueva receta</a>
+        <a class="boton" href="{% url 'recetas:nueva' %}">Nueva receta</a>
     </section>
 {% endif %}
 {% endblock %}

@@ -6,11 +6,18 @@
     --acento: #c2562b;
     --acento-oscuro: #9e4421;
     --tarjeta: #ffffff;
+    --linea-fuerte: #cfc9bd;
+    --error: #b42318;
+    --error-fondo: #fdf1f0;
     --ancho: 68rem;
 }
 
 * {
     box-sizing: border-box;
+}
+
+img {
+    max-width: 100%;
 }
 
 body {
@@ -76,9 +83,25 @@ a:focus-visible {
     background: var(--acento-oscuro);
 }
 
+button.boton {
+    border: 0;
+    cursor: pointer;
+}
+
+.boton:focus-visible {
+    outline: 2px solid var(--acento);
+    outline-offset: 3px;
+}
+
+.boton--grande {
+    padding: 0.75rem 1.75rem;
+    font-size: 1rem;
+}
+
 /* Contenido principal */
 .principal {
     flex: 1;
+    min-width: 0;
     display: flex;
     flex-direction: column;
     padding-block: 2rem;
@@ -90,19 +113,19 @@ a:focus-visible {
     margin: 0;
     padding: 0;
     display: grid;
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     gap: 1.25rem;
 }
 
 @media (min-width: 40rem) {
     .tarjetas {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 }
 
 @media (min-width: 60rem) {
     .tarjetas {
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: repeat(3, minmax(0, 1fr));
     }
 }
 
@@ -156,8 +179,19 @@ a:focus-visible {
     color: var(--acento);
 }
 
+.tarjeta__imagen {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    margin-top: 1rem;
+    border-radius: 0.5rem;
+    background: var(--linea);
+}
+
 .tarjeta__descripcion {
-    margin: 0.75rem 0 0;
+    margin: 1rem 0 0;
     color: var(--texto-suave);
     overflow-wrap: anywhere;
 }
@@ -189,4 +223,190 @@ a:focus-visible {
 
 .vacio__texto {
     margin: 0.25rem 0 1.5rem;
+}
+
+/* Detalle de receta: columna estrecha para leer cómodamente */
+.receta {
+    width: 100%;
+    max-width: 42rem;
+    margin: 0 auto;
+}
+
+.receta__volver {
+    display: inline-block;
+    margin-bottom: 1.5rem;
+    color: var(--texto-suave);
+    font-family: system-ui, sans-serif;
+    font-size: 0.9rem;
+    text-decoration: none;
+}
+
+.receta__volver:hover {
+    color: var(--acento);
+}
+
+.receta__titulo {
+    margin: 0;
+    font-size: clamp(1.9rem, 6vw, 2.6rem);
+    line-height: 1.15;
+    overflow-wrap: anywhere;
+}
+
+.receta__meta {
+    margin: 0.5rem 0 0;
+    color: var(--texto-suave);
+    font-family: system-ui, sans-serif;
+    font-size: 0.9rem;
+}
+
+.receta__imagen {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    margin-top: 1.75rem;
+    border-radius: 0.75rem;
+    background: var(--linea);
+}
+
+.receta__descripcion {
+    margin: 1.5rem 0 0;
+    font-size: 1.2rem;
+    font-style: italic;
+    color: var(--texto-suave);
+    overflow-wrap: anywhere;
+}
+
+.receta__seccion {
+    margin-top: 2.5rem;
+}
+
+.receta__seccion h2 {
+    margin: 0 0 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--acento);
+    font-size: 1.35rem;
+}
+
+.receta__ingredientes {
+    margin: 0;
+    padding-left: 1.25rem;
+}
+
+.receta__ingredientes li {
+    padding-block: 0.3rem;
+    overflow-wrap: anywhere;
+}
+
+.receta__ingredientes li::marker {
+    color: var(--acento);
+}
+
+/* Formulario de nueva receta */
+.formulario {
+    margin-top: 2rem;
+}
+
+.formulario__aviso {
+    margin: 1.5rem 0 0;
+    padding: 0.75rem 1rem;
+    border-left: 4px solid var(--error);
+    border-radius: 0.25rem;
+    background: var(--error-fondo);
+    color: var(--error);
+    font-family: system-ui, sans-serif;
+    font-size: 0.95rem;
+}
+
+.campo {
+    margin-bottom: 1.5rem;
+}
+
+.campo__etiqueta {
+    display: block;
+    margin-bottom: 0.4rem;
+    font-weight: bold;
+}
+
+.campo__etiqueta span {
+    color: var(--acento);
+}
+
+.campo input,
+.campo textarea {
+    display: block;
+    width: 100%;
+    padding: 0.7rem 0.85rem;
+    border: 1px solid var(--linea-fuerte);
+    border-radius: 0.5rem;
+    background: var(--tarjeta);
+    color: var(--texto);
+    font: inherit;
+    line-height: 1.5;
+}
+
+.campo textarea {
+    resize: vertical;
+}
+
+.campo input:focus,
+.campo textarea:focus {
+    outline: 2px solid var(--acento);
+    outline-offset: 1px;
+    border-color: var(--acento);
+}
+
+.campo__ayuda,
+.campo__error {
+    margin: 0.35rem 0 0;
+    font-family: system-ui, sans-serif;
+    font-size: 0.85rem;
+}
+
+.campo__ayuda {
+    color: var(--texto-suave);
+}
+
+.campo__error {
+    color: var(--error);
+    font-weight: 600;
+}
+
+.campo--error input,
+.campo--error textarea {
+    border-color: var(--error);
+    background: var(--error-fondo);
+}
+
+/* Pasos numerados con círculos del color de acento */
+.receta__pasos {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    counter-reset: paso;
+}
+
+.receta__pasos li {
+    position: relative;
+    padding: 0.2rem 0 1.25rem 2.75rem;
+    counter-increment: paso;
+    overflow-wrap: anywhere;
+}
+
+.receta__pasos li::before {
+    content: counter(paso);
+    position: absolute;
+    left: 0;
+    top: 0.1rem;
+    width: 1.9rem;
+    height: 1.9rem;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--acento);
+    color: #fff;
+    font-family: system-ui, sans-serif;
+    font-size: 0.9rem;
+    font-weight: bold;
 }
