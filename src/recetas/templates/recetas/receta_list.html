@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% if recetas %}
+    <ul class="tarjetas">
+        {% for receta in recetas %}
+        <li>
+            <article class="tarjeta">
+                <h2 class="tarjeta__titulo"><a href="#">{{ receta.titulo }}</a></h2>
+                {% if receta.descripcion %}
+                <p class="tarjeta__descripcion">{{ receta.descripcion }}</p>
+                {% endif %}
+                <p class="tarjeta__meta">
+                    por {{ receta.autor }} ·
+                    <time datetime="{{ receta.fecha_publicacion|date:'c' }}">{{ receta.fecha_publicacion|date:'j \d\e F \d\e Y' }}</time>
+                </p>
+            </article>
+        </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <section class="vacio">
+        <p class="vacio__titulo">Todavía no hay recetas</p>
+        <p class="vacio__texto">¿Te animas a publicar la primera?</p>
+        <a class="boton" href="#">Nueva receta</a>
+    </section>
+{% endif %}
+{% endblock %}
