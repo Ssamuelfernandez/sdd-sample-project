@@ -8,11 +8,23 @@
     <a class="receta__volver" href="{% url 'recetas:inicio' %}">← Volver</a>
 
     <header class="receta__cabecera">
+        {% if not receta.publicada %}<p class="etiqueta">Borrador</p>{% endif %}
         <h1 class="receta__titulo">{{ receta.titulo }}</h1>
         <p class="receta__meta">
             por {{ receta.autor }} ·
             <time datetime="{{ receta.fecha_publicacion|date:'c' }}">{{ receta.fecha_publicacion|date:'j \d\e F \d\e Y' }}</time>
         </p>
+        {% if user.is_staff %}
+        <form class="receta__admin" method="post" action="{% url 'recetas:cambiar_publicacion' receta.pk %}">
+            {% csrf_token %}
+            {% if receta.publicada %}
+            <input type="hidden" name="siguiente" value="{% url 'recetas:borradores' %}">
+            <button class="boton boton--secundario" type="submit">Pasar a borrador</button>
+            {% else %}
+            <button class="boton" type="submit">Publicar</button>
+            {% endif %}
+        </form>
+        {% endif %}
     </header>
 
     <img class="receta__imagen" src="{{ receta.url_imagen }}" alt="{{ receta.titulo }}" width="640" height="480">

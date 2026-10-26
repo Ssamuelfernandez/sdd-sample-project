@@ -5,17 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}Blog de Cocina{% endblock %}</title>
     <meta name="description" content="{% block description %}Recetas caseras compartidas de forma sencilla.{% endblock %}">
-    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    {# Cambia ?v= al tocar el CSS para que el navegador no use la versión en caché. #}
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}?v=2">
 </head>
 <body>
     <header class="cabecera">
         <div class="contenedor cabecera__fila">
             <a class="cabecera__logo" href="{% url 'recetas:inicio' %}">Blog de Cocina</a>
-            <a class="boton" href="{% url 'recetas:nueva' %}">Nueva receta</a>
+            <nav class="cabecera__acciones">
+                {% if user.is_staff %}
+                <a class="boton boton--secundario" href="{% url 'recetas:borradores' %}">Borradores</a>
+                {% endif %}
+                <a class="boton" href="{% url 'recetas:nueva' %}">Nueva receta</a>
+            </nav>
         </div>
     </header>
 
     <main class="contenedor principal">
+        {% for mensaje in messages %}
+        <p class="mensaje" role="status">{{ mensaje }}</p>
+        {% endfor %}
         {% block content %}{% endblock %}
     </main>
 </body>

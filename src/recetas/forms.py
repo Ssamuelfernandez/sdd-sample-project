@@ -17,8 +17,9 @@ def mensajes(campo):
 class RecetaForm(forms.ModelForm):
     class Meta:
         model = Receta
-        fields = ['titulo', 'autor', 'descripcion', 'ingredientes', 'pasos', 'imagen']
+        fields = ['titulo', 'autor', 'descripcion', 'ingredientes', 'pasos', 'imagen', 'publicada']
         labels = {
+            'publicada': 'Publicar ahora',
             'titulo': 'Título',
             'autor': 'Tu nombre',
             'descripcion': 'Descripción',
@@ -31,6 +32,7 @@ class RecetaForm(forms.ModelForm):
             'ingredientes': 'Escribe un ingrediente por línea.',
             'pasos': 'Escribe un paso por línea.',
             'imagen': 'Opcional. JPG, PNG o WebP de hasta 2 MB. Si no subes ninguna, se usará la imagen genérica.',
+            'publicada': 'Si la desmarcas, se guarda como borrador y no aparece en la portada hasta que se publique.',
         }
         error_messages = {
             'titulo': mensajes('el título'),
@@ -50,4 +52,6 @@ class RecetaForm(forms.ModelForm):
             'ingredientes': forms.Textarea(attrs={'rows': 6, 'placeholder': '6 huevos\n4 patatas medianas\nSal'}),
             'pasos': forms.Textarea(attrs={'rows': 8, 'placeholder': 'Pela las patatas.\nFríelas a fuego medio.'}),
             'imagen': forms.ClearableFileInput(attrs={'accept': 'image/jpeg,image/png,image/webp'}),
+            # role="switch" hace que los lectores de pantalla lo anuncien como interruptor.
+            'publicada': forms.CheckboxInput(attrs={'role': 'switch'}),
         }

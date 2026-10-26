@@ -29,6 +29,8 @@ class Receta(models.Model):
             validar_tamano_imagen,
         ],
     )
+    # Sin marcar, la receta es un borrador: no sale en la portada hasta que el admin la publique.
+    publicada = models.BooleanField(default=True)
     fecha_publicacion = models.DateTimeField('fecha de publicación', auto_now_add=True)
 
     class Meta:

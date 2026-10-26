@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block title %}Borradores · Blog de Cocina{% endblock %}
+
+{% block content %}
+<h1 class="receta__titulo">Borradores</h1>
+<p class="receta__meta">Recetas guardadas sin publicar. Solo las ve el admin.</p>
+
+{% if recetas %}
+    <ul class="tarjetas borradores">
+        {% for receta in recetas %}
+        <li>
+            <article class="tarjeta">
+                <h2 class="tarjeta__titulo"><a href="{{ receta.get_absolute_url }}">{{ receta.titulo }}</a></h2>
+                <img class="tarjeta__imagen" src="{{ receta.url_imagen }}" alt="{{ receta.titulo }}" width="640" height="480" loading="lazy">
+                {% if receta.descripcion %}
+                <p class="tarjeta__descripcion">{{ receta.descripcion }}</p>
+                {% endif %}
+                <p class="tarjeta__meta">
+                    por {{ receta.autor }} ·
+                    guardada el <time datetime="{{ receta.fecha_publicacion|date:'c' }}">{{ receta.fecha_publicacion|date:'j \d\e F \d\e Y' }}</time>
+                </p>
+                <form class="tarjeta__acciones" method="post" action="{% url 'recetas:cambiar_publicacion' receta.pk %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="siguiente" value="{% url 'recetas:borradores' %}">
+                    <button class="boton" type="submit">Publicar</button>
+                </form>
+            </article>
+        </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <section class="vacio">
+        <p class="vacio__titulo">No hay borradores</p>
+        <p class="vacio__texto">Todas las recetas están publicadas.</p>
+    </section>
+{% endif %}
+{% endblock %}
