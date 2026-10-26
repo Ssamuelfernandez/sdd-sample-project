@@ -1,5 +1,4 @@
 {% extends 'base.html' %}
-{% load static %}
 
 {% block title %}{{ receta.titulo }} · Blog de Cocina{% endblock %}
 {% block description %}{% if receta.descripcion %}{{ receta.descripcion }}{% else %}Receta de {{ receta.titulo }} por {{ receta.autor }}.{% endif %}{% endblock %}
@@ -16,9 +15,7 @@
         </p>
     </header>
 
-    {% if receta.imagen %}
-    <img class="receta__imagen" src="{% static receta.imagen %}" alt="{{ receta.titulo }}" width="640" height="480">
-    {% endif %}
+    <img class="receta__imagen" src="{{ receta.url_imagen }}" alt="{{ receta.titulo }}" width="640" height="480">
 
     {% if receta.descripcion %}
     <p class="receta__descripcion">{{ receta.descripcion }}</p>
@@ -27,7 +24,7 @@
     <section class="receta__seccion">
         <h2>Ingredientes</h2>
         <ul class="receta__ingredientes">
-            {% for ingrediente in ingredientes %}
+            {% for ingrediente in receta.lista_ingredientes %}
             <li>{{ ingrediente }}</li>
             {% endfor %}
         </ul>
@@ -36,7 +33,7 @@
     <section class="receta__seccion">
         <h2>Preparación</h2>
         <ol class="receta__pasos">
-            {% for paso in pasos %}
+            {% for paso in receta.lista_pasos %}
             <li>{{ paso }}</li>
             {% endfor %}
         </ol>

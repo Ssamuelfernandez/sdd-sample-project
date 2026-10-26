@@ -368,6 +368,15 @@ button.boton {
     color: var(--texto-suave);
 }
 
+.campo__vista-previa {
+    display: block;
+    width: 10rem;
+    height: auto;
+    margin-bottom: 0.5rem;
+    border-radius: 0.5rem;
+    border: 1px solid var(--linea);
+}
+
 .campo__error {
     color: var(--error);
     font-weight: 600;

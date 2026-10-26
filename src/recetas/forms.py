@@ -1,7 +1,8 @@
 from django import forms
 
-# Formulario sin modelo mientras no existe Receta; pasará a ser un ModelForm.
-# Los límites siguen el modelo de datos del PRD (sección 7).
+from .models import Receta
+
+# Los límites de longitud vienen del modelo Receta (PRD, sección 7).
 
 
 def mensajes(campo):
@@ -13,40 +14,40 @@ def mensajes(campo):
     }
 
 
-class RecetaForm(forms.Form):
-    titulo = forms.CharField(
-        label='Título',
-        min_length=3,
-        max_length=100,
-        error_messages=mensajes('el título'),
-        widget=forms.TextInput(attrs={'placeholder': 'Ej.: Tortilla de patatas'}),
-    )
-    autor = forms.CharField(
-        label='Tu nombre',
-        min_length=2,
-        max_length=50,
-        error_messages=mensajes('tu nombre'),
-        widget=forms.TextInput(attrs={'placeholder': 'Ej.: Ana', 'autocomplete': 'name'}),
-    )
-    descripcion = forms.CharField(
-        label='Descripción',
-        required=False,
-        max_length=300,
-        error_messages=mensajes('la descripción'),
-        help_text='Opcional. Una frase que invite a cocinarla.',
-        widget=forms.Textarea(attrs={'rows': 2}),
-    )
-    ingredientes = forms.CharField(
-        label='Ingredientes',
-        max_length=3000,
-        error_messages=mensajes('al menos un ingrediente'),
-        help_text='Escribe un ingrediente por línea.',
-        widget=forms.Textarea(attrs={'rows': 6, 'placeholder': '6 huevos\n4 patatas medianas\nSal'}),
-    )
-    pasos = forms.CharField(
-        label='Preparación',
-        max_length=5000,
-        error_messages=mensajes('al menos un paso'),
-        help_text='Escribe un paso por línea.',
-        widget=forms.Textarea(attrs={'rows': 8, 'placeholder': 'Pela las patatas.\nFríelas a fuego medio.'}),
-    )
+class RecetaForm(forms.ModelForm):
+    class Meta:
+        model = Receta
+        fields = ['titulo', 'autor', 'descripcion', 'ingredientes', 'pasos', 'imagen']
+        labels = {
+            'titulo': 'Título',
+            'autor': 'Tu nombre',
+            'descripcion': 'Descripción',
+            'ingredientes': 'Ingredientes',
+            'pasos': 'Preparación',
+            'imagen': 'Foto',
+        }
+        help_texts = {
+            'descripcion': 'Opcional. Una frase que invite a cocinarla.',
+            'ingredientes': 'Escribe un ingrediente por línea.',
+            'pasos': 'Escribe un paso por línea.',
+            'imagen': 'Opcional. JPG, PNG o WebP de hasta 2 MB. Si no subes ninguna, se usará la imagen genérica.',
+        }
+        error_messages = {
+            'titulo': mensajes('el título'),
+            'autor': mensajes('tu nombre'),
+            'descripcion': mensajes('la descripción'),
+            'ingredientes': mensajes('al menos un ingrediente'),
+            'pasos': mensajes('al menos un paso'),
+            'imagen': {
+                'invalid_image': 'El archivo no es una imagen válida.',
+                'invalid_extension': 'Solo se admiten fotos JPG, PNG o WebP.',
+            },
+        }
+        widgets = {
+            'titulo': forms.TextInput(attrs={'placeholder': 'Ej.: Tortilla de patatas'}),
+            'autor': forms.TextInput(attrs={'placeholder': 'Ej.: Ana', 'autocomplete': 'name'}),
+            'descripcion': forms.Textarea(attrs={'rows': 2}),
+            'ingredientes': forms.Textarea(attrs={'rows': 6, 'placeholder': '6 huevos\n4 patatas medianas\nSal'}),
+            'pasos': forms.Textarea(attrs={'rows': 8, 'placeholder': 'Pela las patatas.\nFríelas a fuego medio.'}),
+            'imagen': forms.ClearableFileInput(attrs={'accept': 'image/jpeg,image/png,image/webp'}),
+        }

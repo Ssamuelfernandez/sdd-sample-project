@@ -29,3 +29,5 @@ Fotos obtenidas de Wikimedia Commons, recortadas a 4:3 y reducidas a 640×480 px
 - **arroz-con-leche.jpg**
   - Autor: Juan Emilio Prades Bel · Licencia: CC BY-SA 4.0
   - Original: https://commons.wikimedia.org/wiki/File:Arroz_con_leche_espolvoreado_con_canela_molida.jpg
+- **generica.jpg**
+  - Ilustración propia del proyecto (plato y cubiertos), generada con Pillow. Se muestra en las recetas sin foto.

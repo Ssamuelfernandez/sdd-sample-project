@@ -1,5 +1,4 @@
 {% extends 'base.html' %}
-{% load static %}
 
 {% block content %}
 {% if recetas %}
@@ -7,10 +6,8 @@
         {% for receta in recetas %}
         <li>
             <article class="tarjeta">
-                <h2 class="tarjeta__titulo"><a href="{% url 'recetas:detalle' receta.id %}">{{ receta.titulo }}</a></h2>
-                {% if receta.imagen %}
-                <img class="tarjeta__imagen" src="{% static receta.imagen %}" alt="{{ receta.titulo }}" width="640" height="480" loading="lazy">
-                {% endif %}
+                <h2 class="tarjeta__titulo"><a href="{{ receta.get_absolute_url }}">{{ receta.titulo }}</a></h2>
+                <img class="tarjeta__imagen" src="{{ receta.url_imagen }}" alt="{{ receta.titulo }}" width="640" height="480" loading="lazy">
                 {% if receta.descripcion %}
                 <p class="tarjeta__descripcion">{{ receta.descripcion }}</p>
                 {% endif %}
