@@ -17,6 +17,8 @@
   - RF-11 — Página 404 propia.
 - **Moderación**
   - RF-13 — Modelo `Receta` registrado en el admin de Django, accesible solo para el superusuario.
+- **API REST (opcional, hito 9)**
+  - RF-14 — `GET /api/recetas/`, `GET /api/recetas/{id}/` y `POST /api/recetas/` (solo crea borradores, con token de administrador).
 - **Requisitos no funcionales**
   - RNF-01 a RNF-19 del [PRD](../PRD.md): rendimiento, seguridad, accesibilidad, SEO, compatibilidad y persistencia.
 - **Pantallas incluidas**
@@ -25,6 +27,7 @@
   - `/recetas/{id}/` — Detalle de receta.
   - 404 — Página no encontrada.
   - `/admin/` — Panel de administración de Django (solo para el responsable del blog).
+  - `/api/recetas/` y `/api/recetas/{id}/` — API REST (RF-14).
 
 ## 2. Fuera del alcance
 Exclusiones permanentes: no está previsto hacerlas.
@@ -35,8 +38,6 @@ Exclusiones permanentes: no está previsto hacerlas.
   - Motivo: el admin que trae Django ya cubre la moderación (RF-13); construir otro panel añadiría complejidad sin valor para el usuario.
 - **Aplicación móvil nativa**
   - Motivo: la web responsive cubre el uso en móvil; una app duplicaría el trabajo.
-- **API REST (por ejemplo, con Django REST Framework)**
-  - Motivo: no hay ningún cliente aparte de la web; las plantillas de Django son suficientes.
 - **Frontend SPA (React, Vue, etc.)**
   - Motivo: va contra el principio "Ligero y rápido"; el renderizado en el servidor cubre todas las necesidades y favorece el SEO.
 - **Multidioma**
@@ -79,6 +80,7 @@ Funcionalidades que sí se quieren, pero no en la v1 (ver la hoja de ruta en [vi
   - Base de datos: SQLite (`db.sqlite3`), gestionada con el ORM y las migraciones de Django.
   - Estilos: CSS propio, sin frameworks, servido con `django.contrib.staticfiles`.
   - Fotos (solo v1.1): `ImageField` + Pillow, guardadas en `MEDIA_ROOT/recetas/`.
+  - API (RF-14): Django REST Framework con autenticación por token (`rest_framework.authtoken`); la web sigue renderizándose en el servidor con plantillas.
   - Dependencias declaradas en `requirements.txt`; desarrollo dentro de un entorno virtual (`venv`).
 - **Límites de la plataforma**
   - Sin servicios de pago ni APIs externas.
@@ -133,6 +135,8 @@ Funcionalidades que sí se quieren, pero no en la v1 (ver la hoja de ruta en [vi
    - Entregables: criterios de aceptación verificados; `README.md` con instrucciones (crear el `venv`, `pip install -r requirements.txt`, `migrate`, `createsuperuser`, `runserver`); código final en `src/`.
 8. **Hito 8 — v1.1 (si hay tiempo)**
    - Entregables: RF-12 (foto de la receta con `ImageField`, Pillow y configuración de media).
+9. **Hito 9 — API REST (opcional)**
+   - Entregables: RF-14 (serializador, vistas y rutas de `/api/recetas/`, token de administrador, pruebas de API y ejemplos `curl` en el `README.md`). Cambio aprobado según la sección 7: no desplaza ningún requisito imprescindible y reutiliza el modelo `Receta` sin migraciones propias.
 
 ## 7. Reglas de cambio
 1. **Proponer:** cualquier idea nueva se anota primero en "Dudas abiertas" del [briefing](../briefing.md); no se programa directamente.

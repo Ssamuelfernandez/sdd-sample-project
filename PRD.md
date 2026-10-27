@@ -31,6 +31,7 @@ El Blog de Cocina es una aplicación web minimalista que permite a cualquier vis
 - **HU-05:** Como **lector**, quiero abrir una receta y ver sus ingredientes en lista y sus pasos numerados, para seguirla mientras cocino.
 - **HU-06:** Como **lector**, quiero que cada receta tenga su propio enlace, para guardarla o enviársela a alguien.
 - **HU-07:** Como **autora**, quiero añadir una foto a mi receta, para que resulte más apetecible.
+- **HU-08:** Como **responsable del blog**, quiero una API con la que otros programas lean las recetas publicadas y creen borradores con mi token, para integrar el blog con scripts y herramientas sin pasar por el navegador.
 
 ## 4. Requisitos funcionales
 Prioridades: **imprescindible** (sin esto no hay v1) · **deseable** (debería estar en la v1) · **opcional** (puede posponerse).
@@ -68,6 +69,15 @@ Prioridades: **imprescindible** (sin esto no hay v1) · **deseable** (debería e
 - **RF-13 — Moderación** · Prioridad: deseable · Riesgo de spam
   - El modelo `Receta` se registra en el panel de administración de Django (`/admin/`).
   - Solo el responsable del blog (superusuario) puede entrar para revisar y borrar recetas; no es visible para los visitantes.
+- **RF-14 — API REST** · Prioridad: opcional · HU-08
+  - Se ofrece con Django REST Framework bajo `/api/recetas/`:
+    - `GET /api/recetas/`: lista las recetas publicadas (`publicada=True`), de la más reciente a la más antigua.
+    - `GET /api/recetas/{id}/`: devuelve una receta publicada; un borrador o un id inexistente dan 404.
+    - `POST /api/recetas/`: crea una receta **siempre como borrador** (`publicada=False`).
+  - Contrato JSON: el POST recibe `titulo`, `autor`, `ingredientes`, `pasos` y, opcional, `descripcion`. Las respuestas incluyen `id`, `titulo`, `autor`, `descripcion`, `ingredientes`, `pasos` y `estado` (`publicada` o `borrador`).
+  - Se aplican las mismas validaciones que en el formulario web (RF-03); los errores devuelven 400 con un mensaje por campo. La API no admite `imagen`.
+  - Los GET son públicos. El POST exige un token (`Authorization: Token <token>`) de un usuario administrador de Django (`is_staff`): sin token 401, sin permisos 403. No se crean nuevos sistemas de usuarios.
+  - No modifica el modelo `Receta`: cualquier valor de `estado` o `publicada` enviado por el cliente se ignora.
 
 ## 5. Requisitos no funcionales
 - **Rendimiento**
@@ -138,6 +148,7 @@ Prioridades: **imprescindible** (sin esto no hay v1) · **deseable** (debería e
   - Python y Django, según el stack definido en [scope.md](spec/scope.md).
   - SQLite, que viene incluido con Python y es la base de datos por defecto de Django.
   - Pillow, solo si se implementa RF-12 (lo necesita `ImageField`).
+  - Django REST Framework (`djangorestframework`), solo para RF-14, con su app `rest_framework.authtoken` para los tokens.
   - Apps incluidas en Django: `django.contrib.admin` (moderación, RF-13), `auth` y `sessions` (las necesita el admin) y `staticfiles` (CSS).
   - No se usa ningún servicio externo de pago ni API de terceros.
 - **Supuestos**
@@ -162,6 +173,9 @@ Prioridades: **imprescindible** (sin esto no hay v1) · **deseable** (debería e
 - **No llegar a tiempo con la v1**
   - Probabilidad: media · Impacto: alto.
   - Mitigación: construir primero los requisitos imprescindibles; los deseables y opcionales se pueden recortar.
+- **Uso indebido de la API o fuga del token de administrador**
+  - Probabilidad: baja · Impacto: medio.
+  - Mitigación: los GET no exponen borradores; el POST solo crea borradores y exige token de administrador; el token se puede regenerar desde el admin (RF-14).
 - **Fotos pesadas que ralentizan la web**
   - Probabilidad: baja · Impacto: bajo.
   - Mitigación: límite de 2 MB y formatos permitidos (RF-12, RNF-06).

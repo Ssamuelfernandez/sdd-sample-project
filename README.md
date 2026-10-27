@@ -18,6 +18,7 @@
 - [📚 Documentación](#-documentación)
 - [🏷️ Cómo leer los identificadores](#️-cómo-leer-los-identificadores)
 - [🥘 El producto: Blog de Cocina](#-el-producto-blog-de-cocina)
+- [🔌 API REST](#-api-rest)
 - [🛠️ Stack tecnológico](#️-stack-tecnológico)
 - [📁 Estructura del repositorio](#-estructura-del-repositorio)
 - [🚀 Puesta en marcha](#-puesta-en-marcha)
@@ -111,12 +112,56 @@ Un blog **minimalista** donde la receta es la protagonista. Sin anuncios, sin re
 
 > 🧂 Principio estrella: **"Simple antes que completo"**.
 
+## 🔌 API REST
+Además de la web, el blog ofrece una API JSON (RF-14) bajo `/api/recetas/`:
+
+| Método | Ruta | Quién | Qué hace |
+|---|---|---|---|
+| `GET` | `/api/recetas/` | Cualquiera | Lista las recetas publicadas, de la más reciente a la más antigua |
+| `GET` | `/api/recetas/{id}/` | Cualquiera | Devuelve una receta publicada (los borradores dan 404) |
+| `POST` | `/api/recetas/` | Administrador con token | Crea una receta **siempre como borrador** |
+
+**1. Obtener el token** (una vez, con el servidor parado o en otra terminal, desde `src/`):
+```bash
+python manage.py migrate
+python manage.py drf_create_token TU_USUARIO_ADMIN
+```
+Imprime el token. Se puede regenerar o borrar desde `/admin/` → *Tokens*.
+
+**2. Probarla con `curl`:**
+```bash
+# Listar las recetas publicadas
+curl http://127.0.0.1:8000/api/recetas/
+
+# Ver una receta
+curl http://127.0.0.1:8000/api/recetas/1/
+
+# Crear un borrador (requiere token)
+curl -X POST http://127.0.0.1:8000/api/recetas/   -H "Authorization: Token TU_TOKEN"   -H "Content-Type: application/json"   -d '{"titulo": "Tortilla de patatas", "autor": "Ana", "ingredientes": "Huevos
+Patatas", "pasos": "Freír
+Cuajar"}'
+```
+En Windows PowerShell usa `curl.exe` en lugar de `curl`, y comillas dobles escapadas dentro del JSON.
+
+**Respuesta** (`201 Created`):
+```json
+{"id": 10, "titulo": "Tortilla de patatas", "autor": "Ana", "descripcion": "",
+ "ingredientes": "Huevos
+Patatas", "pasos": "Freír
+Cuajar", "estado": "borrador"}
+```
+
+**Códigos de error:** `400` datos inválidos (un mensaje por campo), `401` falta el token o es incorrecto, `403` el usuario no es administrador, `404` receta inexistente o borrador.
+
+> 📝 La receta creada por la API es un borrador: no sale en la portada hasta que el administrador la publique desde la web (`/recetas/borradores/`). La API no admite foto.
+
 ## 🛠️ Stack tecnológico
 - 🐍 **Python 3.12+**
 - 🎸 **Django 5.2 LTS** — vistas genéricas, `ModelForm` y plantillas renderizadas en el servidor
 - 🗄️ **SQLite** — una base de datos en un solo archivo
 - 🎨 **CSS propio** — sin frameworks, ligero y minimalista
 - 🖼️ **Pillow** — para las fotos de las recetas (v1.1)
+- 🔌 **Django REST Framework** — para la API opcional (RF-14)
 
 ## 📁 Estructura del repositorio
 ```
@@ -128,7 +173,7 @@ sdd-sample-project/
 │   ├── 🔭 vision.md             ← el porqué
 │   ├── 📏 scope.md              ← los límites
 │   └── ✅ acceptance_criteria.md ← cómo se valida
-└── 📂 src/                      ← el código (¡próximamente! 🚧)
+└── 📂 src/                      ← el código (app `recetas`, API en `api.py`)
 ```
 
 ## 🚀 Puesta en marcha

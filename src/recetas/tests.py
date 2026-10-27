@@ -121,6 +121,7 @@ class BorradorTests(TestCase):
         self.client.force_login(self.admin)
         respuesta = self.client.get(url)
         self.assertEqual(list(respuesta.context['recetas']), [self.borrador])
+        self.assertContains(respuesta, f'<a class="receta__volver" href="{reverse("recetas:inicio")}">← Volver</a>')
         self.assertContains(self.client.get(reverse('recetas:inicio')), url)
         self.assertContains(self.client.get(self.borrador.get_absolute_url()), 'Borrador')
 

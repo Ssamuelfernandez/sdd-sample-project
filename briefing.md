@@ -85,3 +85,4 @@ Un blog de cocina muy básico donde cualquier persona puede **publicar recetas**
 - ¿Se incluye la foto de la receta en la v1 o se deja para después?
 - Sin login, ¿basta con el panel de administración de Django (solo para el responsable del blog) para borrar recetas inapropiadas o con errores?
 - ¿Se añaden tiempo de preparación y raciones como campos de la receta?
+- ¿Se ofrece una API REST (Django REST Framework) para que otros programas lean las recetas publicadas y creen borradores? Evaluada con [vision.md](spec/vision.md): no cambia la web ni añade ruido para el lector, y reutiliza el modelo `Receta`. Aprobada como opcional (RF-14).

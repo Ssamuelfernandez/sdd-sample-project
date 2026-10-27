@@ -42,7 +42,7 @@ Documento basado en los requisitos del [PRD](../PRD.md) y el alcance de [scope.m
   - CA-22: cada receta es accesible en `/recetas/{id}/` y la URL no cambia con el tiempo.
   - CA-23: al abrir esa URL directamente (sin pasar por el listado) se muestra la receta.
 - **RF-10 — Volver al listado**
-  - CA-24: el detalle incluye un enlace "← Volver" que lleva a `/`.
+  - CA-24: el detalle y la página de borradores incluyen un enlace "← Volver" que lleva a `/`.
 - **RF-11 — Página no encontrada**
   - CA-25: una receta o ruta inexistente devuelve el código HTTP 404 y la plantilla `404.html` propia, con enlace al inicio (con `DEBUG = False`).
 
@@ -57,6 +57,17 @@ Documento basado en los requisitos del [PRD](../PRD.md) y el alcance de [scope.m
   - CA-29: el formulario permite adjuntar una foto opcional en formato JPG, PNG o WebP de hasta 2 MB.
   - CA-30: la foto se muestra en el detalle y como miniatura en el listado, con el título de la receta como texto alternativo.
   - CA-31: una receta sin foto se muestra correctamente, sin imagen rota.
+
+### 1.6 API REST
+- **RF-14 — API**
+  - CA-32: `GET /api/recetas/` responde 200 con la lista de recetas publicadas, de la más reciente a la más antigua, sin necesidad de token.
+  - CA-33: `GET /api/recetas/{id}/` responde 200 con la receta publicada; con un borrador o un id inexistente responde 404.
+  - CA-34: cada receta de la API incluye `id`, `titulo`, `autor`, `descripcion`, `ingredientes`, `pasos` y `estado` (`publicada` o `borrador`).
+  - CA-35: `POST /api/recetas/` con token de administrador y datos válidos responde 201, crea exactamente una receta y la devuelve con `estado: "borrador"`.
+  - CA-36: el borrador creado por la API no aparece en `/`, en `/api/recetas/` ni en su detalle público, y sí en `/recetas/borradores/` para el administrador.
+  - CA-37: sin token el POST responde 401; con el token de un usuario que no es administrador responde 403; en ambos casos no se crea ninguna receta.
+  - CA-38: el POST valida igual que el formulario web: campos obligatorios y longitudes; si falla responde 400 con un mensaje por campo.
+  - CA-39: la API no cambia la web, el admin ni las recetas existentes.
 
 ## 2. Formato Dado / Cuando / Entonces
 Escenarios de los flujos principales del PRD.
@@ -98,6 +109,19 @@ Escenarios de los flujos principales del PRD.
   - **Cuando** relleno los campos obligatorios, adjunto una foto JPG de 500 KB y pulso "Publicar"
   - **Entonces** la foto aparece en el detalle y como miniatura en el listado.
 
+- **ESC-10 — Crear un borrador por la API** (CA-35, CA-36)
+  - **Dado** que tengo el token del administrador y existe la portada con 9 recetas
+  - **Cuando** hago `POST /api/recetas/` con título, autor, ingredientes y pasos válidos
+  - **Entonces** recibo 201 con `estado: "borrador"` y la portada sigue mostrando 9 recetas.
+- **ESC-11 — Leer recetas por la API** (CA-32, CA-33)
+  - **Dado** que existen recetas publicadas y un borrador
+  - **Cuando** hago `GET /api/recetas/` y `GET /api/recetas/{id}/` sin token
+  - **Entonces** veo solo las publicadas, y el borrador responde 404.
+- **ESC-12 — Crear sin permiso** (CA-37)
+  - **Dado** que no envío token
+  - **Cuando** hago `POST /api/recetas/`
+  - **Entonces** recibo 401 y no se crea ninguna receta.
+
 ## 3. Casos límite y de error
 - **Longitudes en el límite**
   - CL-01: un título de exactamente 3 y de exactamente 100 caracteres se acepta; uno de 2 o de 101 se rechaza con un mensaje de error.
@@ -126,6 +150,13 @@ Escenarios de los flujos principales del PRD.
   - CL-19: un archivo de texto renombrado como `.jpg` se rechaza porque Pillow no lo reconoce como imagen.
   - CL-20: si hay un error en otro campo, se indica al usuario que debe volver a adjuntar la foto (los navegadores no conservan los archivos tras recargar).
 
+- **API (RF-14)**
+  - CL-21: un POST con `publicada: true` o `estado: "publicada"` crea igualmente un borrador.
+  - CL-22: un POST sin `titulo`, `autor`, `ingredientes` o `pasos`, o con solo espacios, responde 400 y no crea nada.
+  - CL-23: un título de 2 o 101 caracteres y un autor de 1 o 51 se rechazan con 400; de 3 y 100, y de 2 y 50, se aceptan.
+  - CL-24: un token inventado responde 401; el método `PUT`, `PATCH` o `DELETE` sobre la API responde 405 o 401/403 y no modifica nada.
+  - CL-25: `GET /api/recetas/abc/` y `GET /api/recetas/9999/` responden 404.
+
 ## 4. Criterios no funcionales medibles
 - **Rendimiento**
   - CNF-01 (RNF-01): cada página carga en menos de 2 s en Chrome DevTools con el perfil de red "Fast 4G" y la caché desactivada.
@@ -147,6 +178,9 @@ Escenarios de los flujos principales del PRD.
 - **Compatibilidad**
   - CNF-14 (RNF-17): los flujos 1, 2 y 3 del PRD funcionan en las 2 últimas versiones de Chrome, Firefox, Edge y Safari.
   - CNF-15 (RNF-18): a 360 px de ancho no hay desplazamiento horizontal y todos los elementos son legibles y pulsables.
+- **API**
+  - CNF-17 (RNF-03, RNF-05): la API usa el ORM y serializadores de DRF; el texto de los usuarios se devuelve como JSON sin renderizarse como HTML.
+  - CNF-18: el listado y el detalle de la API no exponen ningún borrador.
 - **Persistencia**
   - CNF-16 (RNF-19): tras detener y volver a arrancar el servidor (`runserver`), todas las recetas siguen apareciendo.
 
@@ -216,6 +250,11 @@ Se ejecutan antes de cada entrega con el servidor en marcha (`python manage.py r
   1. Publicar una receta con una foto JPG válida; intentar otra con una foto de 3 MB y otra con un GIF.
   2. **Resultado esperado:** la primera se publica con su foto; las otras dos se rechazan con un mensaje claro.
 
+- **PA-12 — API REST** (ESC-10, ESC-11, ESC-12, CL-21)
+  1. Obtener el token del administrador y ejecutar los `curl` del `README.md`: listar, ver detalle y crear.
+  2. Repetir el POST sin token y con datos inválidos.
+  3. **Resultado esperado:** 200 en los GET, 201 con `estado: "borrador"` en el POST válido, 401 sin token y 400 con datos inválidos; la portada no cambia.
+
 ### 6.2 Pruebas automáticas
 Se escriben en `src/recetas/tests.py` con `django.test.TestCase` y el cliente de pruebas de Django, y se ejecutan con `python manage.py test`.
 
@@ -240,3 +279,14 @@ Se escriben en `src/recetas/tests.py` con `django.test.TestCase` y el cliente de
 - **Admin**
   - `test_admin_requiere_login`: `/admin/` redirige al login si no hay sesión (CA-28).
   - `test_receta_registrada_en_admin`: `Receta` está registrada en el sitio de administración (CA-26).
+- **API (`recetas/tests_api.py`)**
+  - `test_listado_solo_publicadas_ordenadas`: el GET lista solo publicadas, de más reciente a más antigua (CA-32).
+  - `test_detalle_publicada_y_borrador_404`: el detalle de un borrador o un id inexistente responde 404 (CA-33, CL-25).
+  - `test_campos_de_la_respuesta`: la respuesta incluye los campos y el `estado` del contrato (CA-34).
+  - `test_post_admin_crea_borrador`: con token de administrador crea 1 borrador y responde 201 (CA-35).
+  - `test_post_ignora_publicada`: `publicada: true` y `estado: "publicada"` no publican (CL-21).
+  - `test_borrador_no_visible_en_publico`: no sale en la portada ni en la API pública (CA-36).
+  - `test_post_sin_token_401` y `test_post_no_admin_403`: no se crea ninguna receta (CA-37, CL-24).
+  - `test_post_invalido_400`: campos ausentes, vacíos o fuera de longitud (CA-38, CL-22, CL-23).
+  - `test_metodos_no_permitidos`: PUT, PATCH y DELETE no modifican nada (CL-24).
+  - `test_web_sin_cambios`: la portada, el detalle y el formulario siguen funcionando (CA-39).
